@@ -1,0 +1,17 @@
+create table band_forms (id_anuncio bigint not null, descripcion longtext, eliminado bit not null, fecha_publicacion date not null, genero_musical varchar(50) not null, link_red_social varchar(255), remunerado bit not null, titulo varchar(50) not null, nombre_banda varchar(50) not null, primary key (id_anuncio)) engine=InnoDB;
+create table band_users (id_band binary(255) not null, user_name varchar(50) not null, email varchar(255) not null, localidad varchar(50) not null, password varchar(255) not null, provincia varchar(50) not null, primary key (id_band)) engine=InnoDB;
+create table bands_bandforms (id_band binary(255) not null, id_band_forms bigint not null) engine=InnoDB;
+create table hibernate_sequence (next_val bigint) engine=InnoDB;
+insert into hibernate_sequence values ( 1 );
+create table musician_forms (id_musician_form bigint not null, descripcion longtext, eliminado bit not null, fecha_publicacion date not null, genero_musical varchar(50) not null, link_red_social varchar(255), remunerado bit not null, titulo varchar(50) not null, apellido varchar(50) not null, instrumento varchar(50) not null, nombre varchar(50) not null, primary key (id_musician_form)) engine=InnoDB;
+create table musician_roles (idmusician bigint not null, id_role bigint not null) engine=InnoDB;
+create table musician_users (id_musician bigint not null, user_name varchar(50) not null, email varchar(255) not null, localidad varchar(50) not null, password varchar(255) not null, provincia varchar(50) not null, primary key (id_musician)) engine=InnoDB;
+create table musicians_musician_forms (id_musician bigint not null, id_musician_forms bigint not null) engine=InnoDB;
+create table roles (id_role bigint not null, role_name varchar(255), primary key (id_role)) engine=InnoDB;
+alter table roles add constraint UK_716hgxp60ym1lifrdgp67xt5k unique (role_name);
+alter table bands_bandforms add constraint FKgxok4s3h3pbq4k0tppiwcel54 foreign key (id_band_forms) references band_forms (id_anuncio);
+alter table bands_bandforms add constraint FKlift9o2d44qj2errwhlgpjul7 foreign key (id_band) references band_users (id_band);
+alter table musician_roles add constraint FKdaakmbyq9l0c8r7sxyt0ejoad foreign key (id_role) references roles (id_role);
+alter table musician_roles add constraint FKa4mb9w8qso07e6fe49rxaquvr foreign key (idmusician) references musician_users (id_musician);
+alter table musicians_musician_forms add constraint FKapdvp5wawcj0vkwoj7qnub0gw foreign key (id_musician_forms) references musician_forms (id_musician_form);
+alter table musicians_musician_forms add constraint FK8b2rtt4eeb83go1w35ajao5hm foreign key (id_musician) references musician_users (id_musician);
