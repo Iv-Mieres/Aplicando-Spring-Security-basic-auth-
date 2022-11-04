@@ -5,14 +5,16 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import com.encuentro_musical.anuncios.dto.PaginadoDTO;
 import com.encuentro_musical.anuncios.dto.PublicationBDTO;
 import com.encuentro_musical.anuncios.model.BandPublication;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
 
-public interface IBandPublicationService {
+public interface IPublicationBandService {
 	
-	public void savePublication(HttpSession session, BandPublication bandPublication);
+	public void savePublication(HttpSession session, BandPublication bandPublication) throws BadRequestException;
 	
-	public List<PublicationBDTO> getAllPublications();
+	public PaginadoDTO getAllPublications(int pageNumber, int pageSize);
 
 	public void deleteBandPublication(HttpSession session, Long idPublication) throws Exception;
 	

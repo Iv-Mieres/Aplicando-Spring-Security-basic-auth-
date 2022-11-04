@@ -6,8 +6,6 @@ import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,9 +30,6 @@ public abstract class Publication {
 	
 	private boolean remunerado;
 	
-	@JsonIgnore
-	private boolean eliminado;
-
 	@Lob
 	@Size(min = 20, max = 500, message = "Debe contener entre 20 y 500 caracteres")
 	private String descripcion;
@@ -49,7 +44,6 @@ public abstract class Publication {
 		this.linkRedSocial = linkRedSocial;
 		this.generoMusical = generoMusical;
 		this.remunerado = false;
-		this.eliminado = false;
 		this.descripcion = descripcion;
 	}
 	

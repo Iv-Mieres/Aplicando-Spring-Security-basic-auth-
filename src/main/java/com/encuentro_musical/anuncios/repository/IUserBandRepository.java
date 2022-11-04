@@ -13,5 +13,6 @@ public interface IUserBandRepository extends JpaRepository<UserBand, Long>{
 	public UserBand findByEmail(String email);
 	public UserBand findByProvincia(String provincia);
 	public UserBand findByLocalidad(String localidad);
+	public boolean existsByUserName(String userName);
 	public boolean existsByEmail(String email);
 }

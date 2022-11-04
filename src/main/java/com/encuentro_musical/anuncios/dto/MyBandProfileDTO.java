@@ -14,10 +14,10 @@ public class MyBandProfileDTO {
 	private String provincia;
 	private String localidad;
 	private String nombreBanda;
-	private List<PublicationMDTO> listPublicationsBand;
+	private List<PublicationBDTO> listPublicationsBand;
 
 	public MyBandProfileDTO(String username, String email, String provincia, String localidad, String nombreBanda,
-			List<PublicationMDTO> listPublicationsBand) {
+			List<PublicationBDTO> listPublicationsBand) {
 		this.username = username;
 		this.email = email;
 		this.provincia = provincia;

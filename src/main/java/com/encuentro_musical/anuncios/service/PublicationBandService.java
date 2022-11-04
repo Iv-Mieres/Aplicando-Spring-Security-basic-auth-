@@ -15,15 +15,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.encuentro_musical.anuncios.dto.BandDTO;
+import com.encuentro_musical.anuncios.dto.PaginadoDTO;
 import com.encuentro_musical.anuncios.dto.PublicationBDTO;
-import com.encuentro_musical.anuncios.dto.PublicationMDTO;
 import com.encuentro_musical.anuncios.model.BandPublication;
 import com.encuentro_musical.anuncios.model.UserBand;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
 import com.encuentro_musical.anuncios.repository.IBandPublicationRepository;
 import com.encuentro_musical.anuncios.repository.IUserBandRepository;
 
 @Service
-public class BandPublicationService implements IBandPublicationService {
+public class PublicationBandService implements IPublicationBandService {
 
 	@Autowired
 	private IBandPublicationRepository bandPublicationRepository;
@@ -33,55 +34,63 @@ public class BandPublicationService implements IBandPublicationService {
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
 
 	// GUARDAR ANUNCIO DE UNA BANDA
 
 	@Override
-	public void savePublication(HttpSession session, BandPublication bandPublication) {
+	public void savePublication(HttpSession session, BandPublication bandPublication) throws BadRequestException {
+			
+		if(!bandPublication.getFechaPublicacion().equals(LocalDate.now())) {
+			throw new BadRequestException("La fecha ingresada debe ser igual a la fecha de hoy: " + LocalDate.now());
+		}
 		var bandSession = (UserBand) session.getAttribute("usersession");
 		var bandPublicationSave = bandPublication;
 		bandPublicationSave.setUserBand(bandSession);
+		
 		bandPublicationRepository.save(bandPublicationSave);
 	}
 
 	// MOSTRAR TODOS LOS ANUNCIOS PAGINADOS DE TODAS LAS BANDAS
 
+	
 	@Override
-	public List<PublicationBDTO> getAllPublications() {
-		int pageNumber = 0;
-		int pageSize = 5;
-
+	public PaginadoDTO getAllPublications(int pageNumber, int pageSize) {
+		
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 		Page<BandPublication> listPublicationsBD = bandPublicationRepository.findAll(pageable);
-		var listBand = new ArrayList<PublicationBDTO>();
+		
+		var listPublicationBDTO = new ArrayList<PublicationBDTO>();
+		var paginadoDTO = modelMapper.map(listPublicationsBD, PaginadoDTO.class);
+		paginadoDTO.setPublicationBDTO(listPublicationBDTO);
 
-		for (BandPublication bandPublication : listPublicationsBD) {
-			PublicationBDTO publicationDTO = modelMapper.map(bandPublication, PublicationBDTO.class);
-			BandDTO bandDTO = modelMapper.map(bandPublication.getUserBand(), BandDTO.class);
+		for (BandPublication bandPublication : listPublicationsBD) {		
+			if(bandPublication.getUserBand().isEnabled() == true) {	
+				
+			PublicationBDTO publicationDTO = modelMapper.map(bandPublication, PublicationBDTO.class);	
+			BandDTO bandDTO = modelMapper.map(bandPublication.getUserBand(), BandDTO.class);	
 			publicationDTO.setBandDTO(bandDTO);
-			listBand.add(publicationDTO);
-		}
-
-		return listBand;
+			
+			listPublicationBDTO.add(publicationDTO);
+			}
+		}			
+		return paginadoDTO;
 	}
 
-	// ELIMINADO LÓGICO DE UN ANUNCIO
+	// ELIMINAR ANUNCIO
 
 	@Override
-	public void deleteBandPublication(HttpSession session, Long idPublication) throws Exception {
-		UserBand bandSession = (UserBand) session.getAttribute("usersession");
-		BandPublication bandPublicationBD = bandPublicationRepository.findById(idPublication)
-				.orElseThrow(() -> new Exception("El id " + idPublication + " no existe. Ingrese un id válido"));
+	public void deleteBandPublication(HttpSession session, Long idPublication) throws BadRequestException {
+		var bandSession = (UserBand) session.getAttribute("usersession");
+		var bandPublicationBD = bandPublicationRepository.findById(idPublication).orElse(null);
 
-		if (bandPublicationBD.getUserBand().getIdBand().equals(bandSession.getIdBand())) {
-			bandPublicationBD.setEliminado(true);
+		if (!bandPublicationBD.getUserBand().getIdBand().equals(bandSession.getIdBand())) {
+			throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido");
 		}
-		bandPublicationRepository.save(bandPublicationBD);
+		bandPublicationRepository.delete(bandPublicationBD);
 	}
 
 	// ============ FILTRAR ANUNCIOS POR ... =================
-
-	// FILTRAR POR GENERO MÚSICAL
 
 	@Override
 	public List<PublicationBDTO> getPublicationByGeneroMusical(String generoMusical) {
@@ -89,7 +98,7 @@ public class BandPublicationService implements IBandPublicationService {
 		var listBandPublication = new ArrayList<PublicationBDTO>();
 
 		for (BandPublication bandPublication : this.getAllBandPublications()) {
-			if (bandPublication.getGeneroMusical().equals(generoMusical)) {
+			if (bandPublication.getGeneroMusical().equalsIgnoreCase(generoMusical)) {
 				PublicationBDTO publicationDTO = modelMapper.map(bandPublication, PublicationBDTO.class);
 				BandDTO userBand = modelMapper.map(bandPublication.getUserBand(), BandDTO.class);
 				publicationDTO.setBandDTO(userBand);
@@ -99,8 +108,6 @@ public class BandPublicationService implements IBandPublicationService {
 		return listBandPublication;
 	}
 
-	// FILTRAR POR FECHA DE PUBLICACIÓN
-	
 	@Override
 	public List<PublicationBDTO> getPublicationByFechaPublicacion(LocalDate fechaPublicacion) {
 		var listBandPublication = new ArrayList<PublicationBDTO>();
@@ -115,15 +122,14 @@ public class BandPublicationService implements IBandPublicationService {
 		}
 		return listBandPublication;
 	}
-	
-	// FILTRAR POR PROVINCIA
 
 	@Override
 	public List<PublicationBDTO> getPublicationByProvincia(String provincia) {
 		var listBandPublication = new ArrayList<PublicationBDTO>();
 
 		for (UserBand userBand : this.getAllBands()) {
-			if (userBand.getProvincia().equals(provincia)) {
+			if (userBand.getProvincia().equalsIgnoreCase(provincia)
+					&& !userBand.isEnabled()) {
 				for (BandPublication bandPublication : userBand.getListPublicationsBand()) {
 					if (!Objects.isNull(bandPublication)) {
 						PublicationBDTO publicationDTO = modelMapper.map(bandPublication, PublicationBDTO.class);

@@ -16,9 +16,10 @@ public class PublicationMDTO {
 	private boolean remunerado;
 	private String descripcion;
 	private MusicianDTO musicianDTO;
+	
 
 	public PublicationMDTO(String titulo, LocalDate fechaPublicacion, String linkRedSocial, String generoMusical,
-			boolean remunerado, String descripcion,  MusicianDTO musicianDTO) {
+			boolean remunerado, String descripcion, MusicianDTO musicianDTO) {
 		this.titulo = titulo;
 		this.fechaPublicacion = fechaPublicacion;
 		this.linkRedSocial = linkRedSocial;

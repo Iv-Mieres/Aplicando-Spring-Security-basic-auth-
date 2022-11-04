@@ -7,16 +7,15 @@ import javax.servlet.http.HttpSession;
 
 import com.encuentro_musical.anuncios.dto.PublicationMDTO;
 import com.encuentro_musical.anuncios.model.MusicianPublication;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
 
-public interface IMusicianPublicationService {
+public interface IPublicationMusicianService {
 	
-	public void savePublication(HttpSession session, MusicianPublication musicianPublication);
+	public void savePublication(HttpSession session, MusicianPublication musicianPublication) throws BadRequestException;
 	
-	public List<MusicianPublication> getAllPublications();
+	public List<PublicationMDTO> getAllPublications();
 	
-	public void deleteMusicianPublication(Long idMusicianPublication) throws Exception;
-	
-	public void editMusicianPublication(Long idMusicianPublication, MusicianPublication MusicianPublication);
+	public void deleteMusicianPublication(HttpSession session, Long idMusicianPublication) throws Exception;
 	
 	public List<PublicationMDTO> getPublicationByGeneroMusical(String generoMusical);
 	

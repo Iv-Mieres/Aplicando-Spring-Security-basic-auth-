@@ -3,20 +3,20 @@ package com.encuentro_musical.anuncios.service;
 import javax.servlet.http.HttpSession;
 
 import com.encuentro_musical.anuncios.dto.MyMusicianProfileDTO;
-import com.encuentro_musical.anuncios.dto.RegisterMDTO;
 import com.encuentro_musical.anuncios.model.MusicianPublication;
 import com.encuentro_musical.anuncios.model.UserMusician;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
 
 public interface IUserMusicianService {
 
-	public UserMusician saveUserMusician(RegisterMDTO registerMusicianDTO) throws Exception;
+	public UserMusician saveUserMusician(UserMusician registerMusicianDTO) throws BadRequestException;
 
-	public MyMusicianProfileDTO myProfile(HttpSession session);
+	public MyMusicianProfileDTO myMusicianProfile(HttpSession session);
 
-	public void updateMusician(HttpSession session, UserMusician userMusician);
+	public void updateMusician(HttpSession session, UserMusician userMusician) throws BadRequestException;
 
 	public void updateMusicianPublication(HttpSession session, Long idMusicianPublication,
-											MusicianPublication musicianPublication) throws Exception;
+											MusicianPublication musicianPublication) throws BadRequestException;
 
 	public void deleteMusician(HttpSession session);
 

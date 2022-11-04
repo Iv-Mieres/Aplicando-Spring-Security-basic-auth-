@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import com.encuentro_musical.anuncios.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -33,15 +34,15 @@ public class UserMusician extends UserModel implements Serializable {
 	private Long idMusician;
 
 	@NotNull(message = "No puede estar vacio")
-	@Size(min = 4, message = "Debe ontener un minimo de 4 caracteres")
+	@Size(min = 4, message = "Debe contener un minimo de 4 caracteres")
 	private String nombre;
 
 	@NotNull(message = "No puede estar vacio")
-	@Size(min = 4, message = "Debe ontener un minimo de 4 caracteres")
+	@Size(min = 4, message = "Debe contener un minimo de 4 caracteres")
 	private String apellido;
 
 	@NotNull(message = "No puede estar vacio")
-	@Size(min = 4, message = "Debe ontener un minimo de 4 caracteres")
+	@Size(min = 4, message = "Debe contener un minimo de 4 caracteres")
 	private String instrumento;
 
 	@OneToMany(mappedBy = "userMusician")
@@ -52,9 +53,9 @@ public class UserMusician extends UserModel implements Serializable {
 	}
 
 	public UserMusician(String userName, String password, String email, String localidad, String provincia,
-			String eliminado, List<MusicianPublication> listPublicationsMusician, String nombre, String apellido,
+			String eliminado, String repeatPassword, Role role, String repeatEmail, List<MusicianPublication> listPublicationsMusician, String nombre, String apellido,
 			String instrumento) {
-		super(userName, password, email, localidad, provincia, eliminado);
+		super(userName, password, email, localidad, provincia, eliminado, repeatPassword, role, repeatEmail);
 		this.listPublicationsMusician = listPublicationsMusician;
 		this.nombre = nombre;
 		this.apellido = apellido;
@@ -95,4 +96,7 @@ public class UserMusician extends UserModel implements Serializable {
 		return true;
 	}
 
+
+
+	
 }

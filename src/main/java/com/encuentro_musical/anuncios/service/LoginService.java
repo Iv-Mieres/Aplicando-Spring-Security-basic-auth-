@@ -68,7 +68,7 @@ public class LoginService implements UserDetailsService {
 			return new User(userMusician.getUsername(), userMusician.getPassword(), userMusician.isEnabled(), true,
 					true, true, permisos);
 		} else {
-			throw new UsernameNotFoundException("El username ingresado no existe. Ingrese un username correcto!");
+			throw new UsernameNotFoundException("username no encotrado!");
 		}
 
 	}

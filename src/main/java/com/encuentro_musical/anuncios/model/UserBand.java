@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import com.encuentro_musical.anuncios.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class UserBand extends UserModel implements Serializable {
 	private Long idBand;
 	
 	@NotNull(message = "No puede estar vacio")
-	@Size(min=3, message = "Debe ontener un minimo de 3 caracteres")
+	@Size(min=3, message = "Debe contener un minimo de 3 caracteres")
 	private String nombreBanda;
 	
 	@OneToMany(mappedBy = "userBand")
@@ -44,8 +45,8 @@ public class UserBand extends UserModel implements Serializable {
 	}
 
 	public UserBand(String userName, String password, String email, String localidad, String provincia,
-			String eliminado, List<BandPublication> listPublicationsBand, String nombreBanda) {
-		super(userName, password, email, localidad, provincia, eliminado);
+			String eliminado, String repeatPassword, Role role, String repeatEmail, List<BandPublication> listPublicationsBand, String nombreBanda) {
+		super(userName, password, email, localidad, provincia, eliminado, repeatPassword, role, repeatEmail);
 		this.listPublicationsBand = listPublicationsBand;
 		this.nombreBanda = nombreBanda;
 	}

@@ -1,7 +1,7 @@
 package com.encuentro_musical.anuncios.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.http.HttpSession;
@@ -14,11 +14,12 @@ import org.springframework.stereotype.Service;
 
 import com.encuentro_musical.anuncios.dto.PublicationMDTO;
 import com.encuentro_musical.anuncios.dto.MyMusicianProfileDTO;
-import com.encuentro_musical.anuncios.dto.RegisterMDTO;
 import com.encuentro_musical.anuncios.enums.Role;
 import com.encuentro_musical.anuncios.model.MusicianPublication;
 import com.encuentro_musical.anuncios.model.UserMusician;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
 import com.encuentro_musical.anuncios.repository.IMusicianPublicationRepository;
+import com.encuentro_musical.anuncios.repository.IUserBandRepository;
 import com.encuentro_musical.anuncios.repository.IUserMusicianRepository;
 
 @Service
@@ -26,6 +27,9 @@ public class UserMusicianService implements IUserMusicianService {
 
 	@Autowired
 	private IUserMusicianRepository userMusicianRepository;
+	
+	@Autowired
+	private IUserBandRepository userBandRepository;
 
 	@Autowired
 	private IMusicianPublicationRepository musicianPublicationRepository;
@@ -36,85 +40,112 @@ public class UserMusicianService implements IUserMusicianService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	// ====== REGISTRAR UN USUARIO MÚSICO =========
+	// ====== REGISTRAR UN USUARIO MÚSICO ========= CHECK OK
 
 	@Override
-	public UserMusician saveUserMusician(RegisterMDTO registerMusician) throws Exception {
-		var musicianUserSet = modelMapper.map(registerMusician, UserMusician.class);
+	public UserMusician saveUserMusician(UserMusician registerMusician) throws BadRequestException {
+
+		if(userMusicianRepository.existsByUserName(registerMusician.getUsername())
+				|| userBandRepository.existsByUserName(registerMusician.getUsername())) {
+			throw new BadRequestException("El username ingresado ya se encuentra registrado. "
+												+ "Por favor ingrese un nuevo username!");	
+		}
+		if (userMusicianRepository.existsByEmail(registerMusician.getEmail())
+				|| userBandRepository.existsByEmail(registerMusician.getEmail())) {
+			throw new BadRequestException("El email ya se encuentra registrado. Por favor ingrese un nuevo email!");
+		}
+		if (!registerMusician.getPassword().equals(registerMusician.getRepeatPassword())) {
+			throw new BadRequestException("Debe ingresar el mismo password en ambos campos");
+		}
+		if (!registerMusician.getEmail().equals(registerMusician.getRepeatEmail())) {
+			throw new BadRequestException("Debe ingresar el mismo Email en ambos campos");
+		}
+		
+		var musicianUserSet =registerMusician;
 		musicianUserSet.setRole(Role.MUSICO);
 		musicianUserSet.setEliminado("FALSE");
-
-		if (registerMusician.getPassword().equals(registerMusician.getRepeatPassword())) {
-			musicianUserSet.setPassword(passwordEncoder.encode(registerMusician.getPassword()));
-		} else {
-			throw new Exception("Debe ingresar el mismo password en ambos campos");
-		}
-		if (userMusicianRepository.existsByEmail(registerMusician.getEmail())) {
-			throw new Exception("El email ya se encuentra registrado. Por favor ingrese un nuevo email!");
-		}
+		musicianUserSet.setPassword(passwordEncoder.encode(registerMusician.getPassword()));
+		musicianUserSet.setRepeatPassword("");
+		
 		return userMusicianRepository.save(musicianUserSet);
 	}
 
-	// ====== MOSTRAR PERFIL(DATOS) DEL USUARIO MÚSICO LOGUEADO =========
+	// ====== MOSTRAR PERFIL(DATOS) DEL USUARIO MÚSICO LOGUEADO ========= CHECK OK
 
 	@Override
-	public MyMusicianProfileDTO myProfile(HttpSession session) {
-		var userMusician = (UserMusician) session.getAttribute("usersession");
-
-		var userMusicianBD = userMusicianRepository.findById(userMusician.getIdMusician()).orElseThrow();
-		var agregarListMusicianPublication = new ArrayList<PublicationMDTO>();
+	public MyMusicianProfileDTO myMusicianProfile(HttpSession session) {
+		
+		var musicianSession = (UserMusician) session.getAttribute("usersession");
+		var userMusicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 		var musicianProfileDTO = modelMapper.map(userMusicianBD, MyMusicianProfileDTO.class);
-		List<MusicianPublication> musicianPublications = userMusicianBD.getListPublicationsMusician();
-
-		for (MusicianPublication musicianPublication : musicianPublications) {
+		var addListMusicianPublication = new ArrayList<PublicationMDTO>();
+			
+		for (MusicianPublication musicianPublication : userMusicianBD.getListPublicationsMusician()) {
 			if (Objects.isNull(musicianPublication)) {
 				Hibernate.initialize(userMusicianBD.getListPublicationsMusician());
-			} else {
+			}else { 
 				var musicianPublicationDTO = modelMapper.map(musicianPublication, PublicationMDTO.class);
-				agregarListMusicianPublication.add(musicianPublicationDTO);
+				addListMusicianPublication.add(musicianPublicationDTO);
 			}
 		}
-		musicianProfileDTO.setListPublicationsMusician(agregarListMusicianPublication);
+		 musicianProfileDTO.setListPublicationsMusician(addListMusicianPublication); 
 		return musicianProfileDTO;
 	}
 
-	// ====== EDITAR USUARIO MÚSICO =========
+	// ====== EDITAR USUARIO MÚSICO ========= CHECK OK
 
 	@Override
-	public void updateMusician(HttpSession session, UserMusician userMusician) {
-		var updateUserMusician = (UserMusician) session.getAttribute("usersession");
+	public void updateMusician(HttpSession session, UserMusician userMusician) throws BadRequestException {
+		var musicianSession = (UserMusician) session.getAttribute("usersession");
+		var userMusicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 
-		Long idMusician = updateUserMusician.getIdMusician();
-		var musicianPublications = updateUserMusician.getListPublicationsMusician();
+		if (userMusicianRepository.existsByUserName(userMusician.getUserName())
+				&& !userMusician.getUserName().equals(userMusicianBD.getUserName())
+				|| userBandRepository.existsByUserName(userMusician.getUserName())) {
 
-		updateUserMusician = userMusician;
-		updateUserMusician.setRole(Role.MUSICO);
-		updateUserMusician.setIdMusician(idMusician);
-		updateUserMusician.setPassword(passwordEncoder.encode(userMusician.getPassword()));
-		updateUserMusician.setListPublicationsMusician(musicianPublications);
-		updateUserMusician.setEliminado("FALSE");
+			throw new BadRequestException("El username ingresado ya existe. Por favor ingrese un nuevo username");
+		}
+		if (userMusicianRepository.existsByEmail(userMusician.getEmail()) && !userMusician.getEmail().equals(userMusicianBD.getEmail())
+				|| userBandRepository.existsByEmail(userMusician.getEmail())) {
 
-		userMusicianRepository.save(updateUserMusician);
+			throw new BadRequestException("El Email ingresado ya existe. Por favor ingrese un nuevo Email");
+		}
+		if (!userMusician.getPassword().equals(userMusician.getRepeatPassword())) {
+			throw new BadRequestException("Debe ingresar el mismo password en ambos campos");
+		}
+		if (!userMusician.getEmail().equals(userMusician.getRepeatEmail())) {
+			throw new BadRequestException("Debe ingresar el mismo Email en ambos campos");
+		}
+		userMusicianBD = userMusician;
+		userMusicianBD.setRole(Role.MUSICO);
+		userMusicianBD.setIdMusician(musicianSession.getIdMusician());
+		userMusicianBD.setPassword(passwordEncoder.encode(userMusician.getPassword()));
+		userMusicianBD.setRepeatPassword("");
+		userMusicianBD.setEliminado("FALSE");
+
+		userMusicianRepository.save(userMusicianBD);
 	}
 
-	// ====== EDITAR PUBLICACIÓN DE UN USUARIO MÚSICO =========
-
+	// ====== EDITAR ANUNCIO DE MÚSICO ========= CHECK OK
 
 	@Override
 	public void updateMusicianPublication(HttpSession session, Long idMuicianPublication,
-			MusicianPublication musicianPublication) throws Exception {
-
+			MusicianPublication musicianPublication) throws BadRequestException {
+		
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
 		var musicianPublicationBD = musicianPublicationRepository.findById(idMuicianPublication)
-				.orElseThrow(() -> new Exception("Id incorrecto. Ingrese un id válido"));
+				.orElseThrow(() -> new BadRequestException("Id incorrecto. Ingrese un id válido"));
 		
 		if(!musicianPublicationBD.getUserMusician().getIdMusician().equals(musicianSession.getIdMusician())) {
-			throw new Exception("Id incorrecto. Ingrese un id válido");
-		}else {	
-			musicianPublicationBD = musicianPublication;
-			musicianPublicationBD.setUserMusician(musicianSession);
-			musicianPublicationBD.setIdMusicianPublication(idMuicianPublication);		
+			throw new BadRequestException("Id incorrecto. Ingrese un id válido");
 		}
+		if(!musicianPublication.getFechaPublicacion().equals(LocalDate.now())) {
+			throw new BadRequestException("La fecha ingresada debe ser igual a la fecha de hoy: " + LocalDate.now());
+		}	
+		musicianPublicationBD = musicianPublication;
+		musicianPublicationBD.setUserMusician(musicianSession);
+		musicianPublicationBD.setIdMusicianPublication(idMuicianPublication);		
+		
 		musicianPublicationRepository.save(musicianPublicationBD);
 	}
 
@@ -123,11 +154,14 @@ public class UserMusicianService implements IUserMusicianService {
 	@Override
 	public void deleteMusician(HttpSession session) {
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
-		var musicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElseThrow();
+		var musicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 
 		musicianBD.setEliminado("TRUE");
-		musicianBD.setIdMusician(musicianSession.getIdMusician());
 		userMusicianRepository.save(musicianBD);
+		
+		for (MusicianPublication musicianPublication : musicianBD.getListPublicationsMusician()) {
+			musicianPublicationRepository.delete(musicianPublication);
+		}
 	}
 
 

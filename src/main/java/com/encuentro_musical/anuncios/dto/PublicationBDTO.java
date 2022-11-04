@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PublicationBDTO {
+public class PublicationBDTO{
 
 	private String titulo;
 	private LocalDate fechaPublicacion;

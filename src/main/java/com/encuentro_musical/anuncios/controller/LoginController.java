@@ -25,6 +25,6 @@ public class LoginController {
 				.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authenticate);
-		return ResponseEntity.status(HttpStatus.OK).body("Login: Ha iniciado sesion correctamente!");
+		return ResponseEntity.status(HttpStatus.OK).body("LOGIN: Ha iniciado sesion correctamente!");
 	}
 }

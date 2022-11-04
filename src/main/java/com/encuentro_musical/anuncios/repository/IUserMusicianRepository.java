@@ -11,5 +11,6 @@ public interface IUserMusicianRepository extends JpaRepository<UserMusician, Lon
 	public UserMusician findByuserName(String userName);
 	public UserMusician findByEmail(String email);
 	public List<UserMusician> findByInstrumento(String instrumento);
+	public boolean existsByUserName(String userName);
 	public boolean existsByEmail(String email);
 }
