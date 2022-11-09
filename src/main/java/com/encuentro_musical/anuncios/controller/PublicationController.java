@@ -3,6 +3,8 @@ package com.encuentro_musical.anuncios.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -15,54 +17,51 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.encuentro_musical.anuncios.dto.PaginadoDTO;
-import com.encuentro_musical.anuncios.dto.PublicationBDTO;
-import com.encuentro_musical.anuncios.dto.PublicationMDTO;
-import com.encuentro_musical.anuncios.service.IPublicationBandService;
-import com.encuentro_musical.anuncios.service.IPublicationMusicianService;
+import com.encuentro_musical.anuncios.dto.PublicationDTO;
+import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
+import com.encuentro_musical.anuncios.service.IPublicationService;
 
 @RestController
 @RequestMapping(path = "/anuncios")
 public class PublicationController {
 
 	@Autowired
-	private IPublicationBandService bandPublicationService;
-
-	@Autowired
-	private IPublicationMusicianService musicianPublicationService;
+	private IPublicationService publicationService;
 
 	// ========= ENDPOINTS DE ANUNCIOS QUE PUEDE VER UN MÚSICO LOGUEADO
 	// ===================
 
 	// VER TODOS LOS ANUNCIOS DE BANDAS
-	@PreAuthorize("hasRole('MUSICO')")
+	@PreAuthorize("hasAnyRole('MUSICO', 'BANDA')")
 	@GetMapping("/bandas")
-	public ResponseEntity<PaginadoDTO> getBandPublication(
+	public ResponseEntity<PaginadoDTO> getAllBandPublications(HttpSession session,
 			@RequestParam(required = false, name = "pageNumber", defaultValue = "0") int pageNumber,
-			@RequestParam(required = false, name = "pageSize", defaultValue = "5") int pageSize) {
-		return ResponseEntity.status(HttpStatus.OK).body(bandPublicationService.getAllPublications(pageNumber, pageSize));
+			@RequestParam(required = false, name = "pageSize", defaultValue = "5") int pageSize) throws BadRequestException{
+		return ResponseEntity.status(HttpStatus.OK).body(publicationService.getAllBandOrMusicianPublications(session, pageNumber, pageSize));
 	}
 
+	
 	// FILTROS DE ANUNCIOS
 
 	@PreAuthorize("hasRole('MUSICO')")
 	@GetMapping("/bandas/por_genero_musical/{genero_musical}")
-	public ResponseEntity<List<PublicationBDTO>> getAllGeneroMusical(@PathVariable String genero_musical) {
+	public ResponseEntity<List<PublicationDTO>> getAllGeneroMusical(HttpSession session, @PathVariable String genero_musical) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(bandPublicationService.getPublicationByGeneroMusical(genero_musical));
+				.body(publicationService.getPublicationByGeneroMusical(session, genero_musical));
 	}
 
 	@PreAuthorize("hasRole('MUSICO')")
 	@GetMapping("/bandas/por_fecha_publicacion/{fecha_publicacion}")
-	public ResponseEntity<List<PublicationBDTO>> getAllFecha(
+	public ResponseEntity<List<PublicationDTO>> getAllFecha(HttpSession session,
 			@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_publicacion) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(bandPublicationService.getPublicationByFechaPublicacion(fecha_publicacion));
+				.body(publicationService.getPublicationByFechaPublicacion(session, fecha_publicacion));
 	}
 
 	@PreAuthorize("hasRole('MUSICO')")
 	@GetMapping("/bandas/por_provincia/{provincia}")
-	public ResponseEntity<List<PublicationBDTO>> getAllProvincia(@PathVariable String provincia) {
-		return ResponseEntity.status(HttpStatus.OK).body(bandPublicationService.getPublicationByProvincia(provincia));
+	public ResponseEntity<List<PublicationDTO>> getAllProvincia(HttpSession session, @PathVariable String provincia) {
+		return ResponseEntity.status(HttpStatus.OK).body(publicationService.getPublicationByProvincia(session, provincia));
 	}
 
 	// ========= ENDPOINTS DE ANUNCIOS QUE PUEDE VER UNA BANDA LOGUEADA
@@ -72,39 +71,41 @@ public class PublicationController {
 
 	@PreAuthorize("hasRole('BANDA')")
 	@GetMapping("/musicos/ver_anuncios")
-	public ResponseEntity<List<PublicationMDTO>> getMusicianPublication() {
-		return ResponseEntity.status(HttpStatus.OK).body(musicianPublicationService.getAllPublications());
+	public ResponseEntity<PaginadoDTO> getMusicianPublication(HttpSession session,
+			@RequestParam(required = false, name = "pageNumber", defaultValue = "0") int pageNumber,
+			@RequestParam(required = false, name = "pageSize", defaultValue = "5") int pageSize) throws BadRequestException {
+		return ResponseEntity.status(HttpStatus.OK).body(publicationService.getAllBandOrMusicianPublications(session, pageNumber, pageSize));
 	}
 
 	// FILTROS DE ANUNCIOS
 
 	@PreAuthorize("hasRole('BANDA')")
 	@GetMapping("/musicos/ver_anuncios/por_genero_musical/{genero_musical}")
-	public ResponseEntity<List<PublicationMDTO>> getAllMGeneroMusical(@PathVariable String genero_musical) {
+	public ResponseEntity<List<PublicationDTO>> getAllMGeneroMusical(HttpSession session, @PathVariable String genero_musical) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(musicianPublicationService.getPublicationByGeneroMusical(genero_musical));
+				.body(publicationService.getPublicationByGeneroMusical(session, genero_musical));
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
 	@GetMapping("/musicos/ver_anuncios/por_fecha_publicacion/{fecha_publicacion}")
-	public ResponseEntity<List<PublicationMDTO>> getAllMFecha(
+	public ResponseEntity<List<PublicationDTO>> getAllMFecha(HttpSession session,
 			@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_publicacion) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(musicianPublicationService.getPublicationByFechaPublicacion(fecha_publicacion));
+				.body(publicationService.getPublicationByFechaPublicacion(session, fecha_publicacion));
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
 	@GetMapping("/musicos/ver_anuncios/por_provincia/{provincia}")
-	public ResponseEntity<List<PublicationMDTO>> getAllMProvincia(@PathVariable String provincia) {
+	public ResponseEntity<List<PublicationDTO>> getAllMProvincia(HttpSession session, @PathVariable String provincia) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(musicianPublicationService.getPublicationByProvincia(provincia));
+				.body(publicationService.getPublicationByProvincia(session, provincia));
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
 	@GetMapping("/musicos/ver_anuncios/por_instrumento/{instrumento}")
-	public ResponseEntity<List<PublicationMDTO>> getAllMInstrumento(@PathVariable String instrumento) {
+	public ResponseEntity<List<PublicationDTO>> getAllMInstrumento(HttpSession session, @PathVariable String instrumento) {
 		return ResponseEntity.status(HttpStatus.OK)
-				.body(musicianPublicationService.getPublicationByInstrumento(instrumento));
-	}
+				.body(publicationService.getPublicationByInstrumento(session, instrumento));
+	} 
 
 }

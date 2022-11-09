@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PublicationBDTO{
+public class PublicationDTO {
 
 	private String titulo;
 	private LocalDate fechaPublicacion;
@@ -15,20 +15,23 @@ public class PublicationBDTO{
 	private String generoMusical;
 	private boolean remunerado;
 	private String descripcion;
+	private MusicianDTO musicianDTO;
 	private BandDTO bandDTO;
+	
 
-	public PublicationBDTO(String titulo, LocalDate fechaPublicacion, String linkRedSocial, String generoMusical,
-			boolean remunerado, String descripcion, BandDTO bandDTO) {
+	public PublicationDTO(String titulo, LocalDate fechaPublicacion, String linkRedSocial, String generoMusical,
+			boolean remunerado, String descripcion, MusicianDTO musicianDTO, BandDTO bandDTO) {
 		this.titulo = titulo;
 		this.fechaPublicacion = fechaPublicacion;
 		this.linkRedSocial = linkRedSocial;
 		this.generoMusical = generoMusical;
 		this.remunerado = remunerado;
 		this.descripcion = descripcion;
+		this.musicianDTO = musicianDTO;
 		this.bandDTO = bandDTO;
 	}
 
-	public PublicationBDTO() {
+	public PublicationDTO() {
 	}
 
 }

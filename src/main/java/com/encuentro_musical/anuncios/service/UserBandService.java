@@ -13,12 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.encuentro_musical.anuncios.dto.MyBandProfileDTO;
-import com.encuentro_musical.anuncios.dto.PublicationBDTO;
+import com.encuentro_musical.anuncios.dto.PublicationDTO;
 import com.encuentro_musical.anuncios.enums.Role;
-import com.encuentro_musical.anuncios.model.BandPublication;
+import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserBand;
 import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
-import com.encuentro_musical.anuncios.repository.IBandPublicationRepository;
+import com.encuentro_musical.anuncios.repository.IPublicationRepository;
 import com.encuentro_musical.anuncios.repository.IUserBandRepository;
 import com.encuentro_musical.anuncios.repository.IUserMusicianRepository;
 
@@ -29,10 +29,10 @@ public class UserBandService implements IUserBandService {
 	private IUserBandRepository userBandRepository;
 
 	@Autowired
-	private IUserMusicianRepository userMusicianRepository;
+	private IPublicationRepository publicationRepository;
 
 	@Autowired
-	private IBandPublicationRepository bandPublicationRepository;
+	private IUserMusicianRepository userMusicianRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -78,13 +78,13 @@ public class UserBandService implements IUserBandService {
 		var bandSession = (UserBand) session.getAttribute("usersession");
 		var userBandBD = userBandRepository.findById(bandSession.getIdBand()).orElse(null);
 		var bandProfileDTO = modelMapper.map(userBandBD, MyBandProfileDTO.class);
-		var addListBandPublication = new ArrayList<PublicationBDTO>();
+		var addListBandPublication = new ArrayList<PublicationDTO>();
 
-		for (BandPublication bandPublication : userBandBD.getListPublicationsBand()) {
+		for (Publication bandPublication : userBandBD.getListPublicationsBand()) {
 			if (Objects.isNull(bandPublication)) {
 				Hibernate.initialize(userBandBD.getListPublicationsBand());
 			} else {
-				var bandPublicationDTO = modelMapper.map(bandPublication, PublicationBDTO.class);
+				var bandPublicationDTO = modelMapper.map(bandPublication, PublicationDTO.class);
 				addListBandPublication.add(bandPublicationDTO);
 			}
 		}
@@ -129,38 +129,41 @@ public class UserBandService implements IUserBandService {
 	// ====== EDITAR ANUNCIO DE UNA BANDA =========
 
 	@Override
-	public void updateBandPublication(HttpSession session, Long idBandPublication, BandPublication bandPublication)
+	public void updateBandPublication(HttpSession session, Long idBandPublication, Publication bandPublication)
 			throws BadRequestException {
 
 		var bandSession = (UserBand) session.getAttribute("usersession");
-		var bandPublicationBD = bandPublicationRepository.findById(idBandPublication).orElse(null);
+		var publicationBD = publicationRepository.findById(idBandPublication)
+				.orElseThrow(() -> new BadRequestException("El id " + idBandPublication + " no es correcto. Ingrese un id válido")) ;
 
-		if (!bandPublicationBD.getUserBand().getIdBand().equals(bandSession.getIdBand())) {
-			throw new BadRequestException("Id incorrecto. Ingrese un id válido");
+		if (Objects.isNull(publicationBD.getUserBand()) 
+				|| !publicationBD.getUserBand().getIdBand().equals(bandSession.getIdBand())) {
+			throw new BadRequestException("El id " + idBandPublication + " no es correcto. Ingrese un id válido");
 		}
-		if(!bandPublication.getFechaPublicacion().equals(LocalDate.now())) {
+		if (!bandPublication.getFechaPublicacion().equals(LocalDate.now())) {
 			throw new BadRequestException("La fecha ingresada debe ser igual a la fecha de hoy: " + LocalDate.now());
 		}
-		bandPublicationBD = bandPublication;
-		bandPublicationBD.setUserBand(bandSession);
-		bandPublicationBD.setIdBandPublication(idBandPublication);
-	
-		bandPublicationRepository.save(bandPublicationBD);
+		publicationBD = bandPublication;
+		publicationBD.setUserBand(bandSession);
+		publicationBD.setIdAnuncio(idBandPublication);
+
+		publicationRepository.save(publicationBD);
 	}
 
-	// ====== ELIMINADO LÓGICO DE UNA BANDA =========
+	// ====== ELIMINADO LÓGICO DE USUARIO BANDA =========
 
 	@Override
 	public void deleteBand(HttpSession session) {
 		var bandSession = (UserBand) session.getAttribute("usersession");
-		var bandBD = userBandRepository.findById(bandSession.getIdBand()).orElseThrow();
+		var bandBD = userBandRepository.findById(bandSession.getIdBand()).orElse(null);
+
 		bandBD.setEliminado("TRUE");
 		userBandRepository.save(bandBD);
 
-		for (BandPublication bandPublication : bandBD.getListPublicationsBand()) {
-			bandPublicationRepository.delete(bandPublication);
+		// elimina todas las publicaciones del usuario banda eliminado
+		for (Publication bandPublication : bandBD.getListPublicationsBand()) {
+			publicationRepository.delete(bandPublication);
 		}
-
 	}
 
 }

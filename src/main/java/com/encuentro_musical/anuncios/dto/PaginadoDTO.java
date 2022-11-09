@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 public class PaginadoDTO {
 
-	private List<PublicationBDTO> publicationBDTO;
-	private List<PublicationMDTO> publicationMDTO;
+	private List<PublicationDTO> publicationDTO;
 	private int pageNumber;
 	private int pageSize;
 	private int NumberOfElements;
@@ -20,7 +19,7 @@ public class PaginadoDTO {
 	private Long elementsTotal;
 
 	public PaginadoDTO(int pageNumber, int pageSize, int numberOfElements, boolean isFirst, boolean isLast,
-			int totalPage, Long totalElements, List<PublicationBDTO> publicationBDTO, List<PublicationMDTO> publicationMDTO) {
+			int totalPage, Long totalElements, List<PublicationDTO> publicationDTO) {
 		this.pageNumber = pageNumber;
 		this.pageSize = pageSize;
 		this.NumberOfElements = numberOfElements;
@@ -28,8 +27,7 @@ public class PaginadoDTO {
 		this.isLast = isLast;
 		this.pagesTotal = totalPage;
 		this.elementsTotal = totalElements;
-		this.publicationBDTO = publicationBDTO;
-		this.publicationMDTO = publicationMDTO;
+		this.publicationDTO = publicationDTO;
 	}
 
 	public PaginadoDTO() {

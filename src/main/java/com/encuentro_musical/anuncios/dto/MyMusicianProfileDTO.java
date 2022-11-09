@@ -16,10 +16,10 @@ public class MyMusicianProfileDTO {
 	private String provincia;
 	private String localidad;
 	private String instrumento;
-	private List<PublicationMDTO> listPublicationsMusician;
+	private List<PublicationDTO> listPublicationsMusician;
 
 	public MyMusicianProfileDTO(String username, String email, String nombre, String apellido, String provincia,
-			String localidad, String instrumento, List<PublicationMDTO> listPublicationsMusician) {
+			String localidad, String instrumento, List<PublicationDTO> listPublicationsMusician) {
 		this.username = username;
 		this.email = email;
 		this.nombre = nombre;

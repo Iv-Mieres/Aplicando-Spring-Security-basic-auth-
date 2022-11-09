@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.encuentro_musical.anuncios.dto.MyBandProfileDTO;
-import com.encuentro_musical.anuncios.model.BandPublication;
+import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserBand;
 import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
-import com.encuentro_musical.anuncios.service.IPublicationBandService;
+import com.encuentro_musical.anuncios.service.IPublicationService;
 import com.encuentro_musical.anuncios.service.IUserBandService;
 
 @RestController
@@ -26,7 +26,7 @@ import com.encuentro_musical.anuncios.service.IUserBandService;
 public class BandProfileController {
 
 	@Autowired
-	private IPublicationBandService bandPublicationService;
+	private IPublicationService publicationService;
 
 	@Autowired
 	private IUserBandService userBandService;
@@ -44,11 +44,10 @@ public class BandProfileController {
 
 	// CREAR ANUNCIO
 
-	@PreAuthorize("hasRole('BANDA')")
+	@PreAuthorize("hasAnyRole('BANDA', 'MUSICO')")
 	@PostMapping("/crear_anuncio")
-	public ResponseEntity<String> saveBandPublication(HttpSession session,
-			@RequestBody @Valid BandPublication bandPublication) throws BadRequestException {
-		bandPublicationService.savePublication(session, bandPublication);
+	public ResponseEntity<String> saveBandPublication(HttpSession session,  @RequestBody @Valid Publication bandPublication) throws BadRequestException {
+		publicationService.savePublication(session, bandPublication);
 		return ResponseEntity.status(HttpStatus.CREATED).body("Su anuncio fue creado correctamente!");
 	}
 
@@ -75,7 +74,7 @@ public class BandProfileController {
 	@PreAuthorize("hasRole('BANDA')")
 	@PostMapping("/mi_perfil/editar_anuncio/{id_anuncio}")
 	public ResponseEntity<String> updatePublication(HttpSession session, @PathVariable Long id_anuncio,
-			@RequestBody @Valid BandPublication bandPublication) throws Exception {
+			@RequestBody @Valid Publication bandPublication) throws Exception {
 		userBandService.updateBandPublication(session, id_anuncio, bandPublication);
 		return ResponseEntity.status(HttpStatus.OK).body("Su anuncio de editó correctamente!");
 	}
@@ -85,8 +84,8 @@ public class BandProfileController {
 	@PreAuthorize("hasRole('BANDA')")
 	@PostMapping("/mi_perfil/eliminar_anuncio/{id_anuncio}")
 	public ResponseEntity<String> deleteBand(HttpSession session, @PathVariable Long id_anuncio)
-			throws Exception {
-		bandPublicationService.deleteBandPublication(session, id_anuncio);
+			throws BadRequestException {
+	    publicationService.deletePublication(session, id_anuncio);
 		return ResponseEntity.status(HttpStatus.OK).body("El anuncio ha sido eliminado");
 	}
 

@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.encuentro_musical.anuncios.dto.MyMusicianProfileDTO;
-import com.encuentro_musical.anuncios.model.MusicianPublication;
+import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserMusician;
 import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
-import com.encuentro_musical.anuncios.service.IPublicationMusicianService;
+import com.encuentro_musical.anuncios.service.IPublicationService;
 import com.encuentro_musical.anuncios.service.IUserMusicianService;
 
 @RestController
@@ -29,7 +29,7 @@ public class MusicianProfileController {
 	private IUserMusicianService userMusicianService;
 
 	@Autowired
-	private IPublicationMusicianService musicianPublicationService;
+	private IPublicationService publicationService;
 
 	// ================= EDNPOINTS PARA MÚSICO ==========================
 
@@ -47,8 +47,8 @@ public class MusicianProfileController {
 	@PreAuthorize("hasRole('MUSICO')")
 	@PostMapping("/crear_anuncio")
 	public ResponseEntity<String> saveMusicianPublication(HttpSession session,
-			@RequestBody @Valid MusicianPublication musicianPublication) {
-		musicianPublicationService.savePublication(session, musicianPublication);
+			@RequestBody @Valid Publication musicianPublication) {
+		publicationService.savePublication(session, musicianPublication);
 		return ResponseEntity.status(HttpStatus.CREATED).body("Su anuncio se publicó correctamente!");
 	}
 
@@ -76,7 +76,7 @@ public class MusicianProfileController {
 	@PreAuthorize("hasRole('MUSICO')")
 	@PostMapping("/mi_perfil/editar_anuncio/{idMusicianPublication}")
 	public ResponseEntity<String> editPublication(HttpSession session, @PathVariable Long idMusicianPublication,
-			@RequestBody @Valid MusicianPublication musicianPublication) throws BadRequestException {
+			@RequestBody @Valid Publication musicianPublication) throws BadRequestException {
 		userMusicianService.updateMusicianPublication(session, idMusicianPublication, musicianPublication);
 		return ResponseEntity.status(HttpStatus.OK).body("El anuncio se actualizó correctamente!");
 	}

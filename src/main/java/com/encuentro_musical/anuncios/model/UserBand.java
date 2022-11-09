@@ -39,13 +39,13 @@ public class UserBand extends UserModel implements Serializable {
 	
 	@OneToMany(mappedBy = "userBand")
 	@JsonIgnoreProperties (value = "userBand")
-	private List<BandPublication> listPublicationsBand;
+	private List<Publication> listPublicationsBand;
 	
 	public UserBand() {
 	}
 
 	public UserBand(String userName, String password, String email, String localidad, String provincia,
-			String eliminado, String repeatPassword, Role role, String repeatEmail, List<BandPublication> listPublicationsBand, String nombreBanda) {
+			String eliminado, String repeatPassword, Role role, String repeatEmail, List<Publication> listPublicationsBand, String nombreBanda) {
 		super(userName, password, email, localidad, provincia, eliminado, repeatPassword, role, repeatEmail);
 		this.listPublicationsBand = listPublicationsBand;
 		this.nombreBanda = nombreBanda;

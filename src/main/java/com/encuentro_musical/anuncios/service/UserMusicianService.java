@@ -12,13 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.encuentro_musical.anuncios.dto.PublicationMDTO;
+import com.encuentro_musical.anuncios.dto.PublicationDTO;
 import com.encuentro_musical.anuncios.dto.MyMusicianProfileDTO;
 import com.encuentro_musical.anuncios.enums.Role;
-import com.encuentro_musical.anuncios.model.MusicianPublication;
+import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserMusician;
 import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
-import com.encuentro_musical.anuncios.repository.IMusicianPublicationRepository;
 import com.encuentro_musical.anuncios.repository.IUserBandRepository;
 import com.encuentro_musical.anuncios.repository.IUserMusicianRepository;
 
@@ -30,9 +29,6 @@ public class UserMusicianService implements IUserMusicianService {
 	
 	@Autowired
 	private IUserBandRepository userBandRepository;
-
-	@Autowired
-	private IMusicianPublicationRepository musicianPublicationRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -78,13 +74,13 @@ public class UserMusicianService implements IUserMusicianService {
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
 		var userMusicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 		var musicianProfileDTO = modelMapper.map(userMusicianBD, MyMusicianProfileDTO.class);
-		var addListMusicianPublication = new ArrayList<PublicationMDTO>();
+		var addListMusicianPublication = new ArrayList<PublicationDTO>();
 			
-		for (MusicianPublication musicianPublication : userMusicianBD.getListPublicationsMusician()) {
+		for (Publication musicianPublication : userMusicianBD.getListPublicationsMusician()) {
 			if (Objects.isNull(musicianPublication)) {
 				Hibernate.initialize(userMusicianBD.getListPublicationsMusician());
 			}else { 
-				var musicianPublicationDTO = modelMapper.map(musicianPublication, PublicationMDTO.class);
+				var musicianPublicationDTO = modelMapper.map(musicianPublication, PublicationDTO.class);
 				addListMusicianPublication.add(musicianPublicationDTO);
 			}
 		}
@@ -130,8 +126,8 @@ public class UserMusicianService implements IUserMusicianService {
 
 	@Override
 	public void updateMusicianPublication(HttpSession session, Long idMuicianPublication,
-			MusicianPublication musicianPublication) throws BadRequestException {
-		
+		Publication musicianPublication) throws BadRequestException {
+		/*
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
 		var musicianPublicationBD = musicianPublicationRepository.findById(idMuicianPublication)
 				.orElseThrow(() -> new BadRequestException("Id incorrecto. Ingrese un id válido"));
@@ -147,12 +143,14 @@ public class UserMusicianService implements IUserMusicianService {
 		musicianPublicationBD.setIdMusicianPublication(idMuicianPublication);		
 		
 		musicianPublicationRepository.save(musicianPublicationBD);
+		*/
 	}
 
 	// ====== ELIMINADO LÓGICO DE UN MÚSICO =========
 
 	@Override
 	public void deleteMusician(HttpSession session) {
+		/*
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
 		var musicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 
@@ -163,6 +161,7 @@ public class UserMusicianService implements IUserMusicianService {
 			musicianPublicationRepository.delete(musicianPublication);
 		}
 	}
-
+*/
+	}
 
 }
