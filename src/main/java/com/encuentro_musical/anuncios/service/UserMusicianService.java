@@ -1,6 +1,5 @@
 package com.encuentro_musical.anuncios.service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 

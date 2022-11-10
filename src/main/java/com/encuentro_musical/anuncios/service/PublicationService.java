@@ -79,7 +79,8 @@ public class PublicationService implements IPublicationService {
 			paginadoDTO.setPublicationDTO(listPublicationDTO);
 
 			for (Publication publicationBD : listPublicationsBD) {
-				if (Objects.isNull(publicationBD.getUserMusician()) && !Objects.isNull(publicationBD.getUserBand())) {
+				if ((!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled())
+						&& Objects.isNull(publicationBD.getUserMusician())) {
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					BandDTO bandDTO = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
 					publicationDTO.setBandDTO(bandDTO);
@@ -93,7 +94,8 @@ public class PublicationService implements IPublicationService {
 			paginadoDTO.setPublicationDTO(listPublicationMDTO);
 
 			for (Publication publicationBD : listPublicationsBD) {
-				if (Objects.isNull(publicationBD.getUserBand()) && !Objects.isNull(publicationBD.getUserMusician())) {
+				if((!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled()) 
+					&& Objects.isNull(publicationBD.getUserBand())){
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					MusicianDTO musicianDTO = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
 					publicationDTO.setMusicianDTO(musicianDTO);
@@ -151,9 +153,8 @@ public class PublicationService implements IPublicationService {
 		switch(userSession.getRole()) {
 		
 		case MUSICO:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if (publicationBD.getGeneroMusical().equalsIgnoreCase(generoMusical) 
-						&& !Objects.isNull(publicationBD.getUserBand())) {
+			for (Publication publicationBD : publicationRepository.findByGeneroMusical(generoMusical)) {
+				if (!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) {
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
 					publicationDTO.setBandDTO(userBand);
@@ -162,9 +163,8 @@ public class PublicationService implements IPublicationService {
 			}
 			return listPublication;
 		case BANDA:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if (publicationBD.getGeneroMusical().equalsIgnoreCase(generoMusical) 
-						&& !Objects.isNull(publicationBD.getUserMusician())) {
+			for (Publication publicationBD : publicationRepository.findByGeneroMusical(generoMusical)) {
+				if (!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled() ) {
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
 					publicationDTO.setMusicianDTO(userMusician);
@@ -185,14 +185,12 @@ public class PublicationService implements IPublicationService {
 	public List<PublicationDTO> getPublicationByFechaPublicacion(HttpSession session, LocalDate fechaPublicacion) {
 		UserModel userSession = (UserModel) session.getAttribute("usersession");
 		var listPublication = new ArrayList<PublicationDTO>();
-		
-		
+				
 		switch(userSession.getRole()) {
 		
 		case MUSICO:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if (publicationBD.getFechaPublicacion().equals(fechaPublicacion) 
-						&& !Objects.isNull(publicationBD.getUserBand())) {
+			for (Publication publicationBD : publicationRepository.findByFechaPublicacion(fechaPublicacion)) {
+				if (!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) {
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
 					publicationDTO.setBandDTO(userBand);
@@ -201,9 +199,8 @@ public class PublicationService implements IPublicationService {
 			}
 			return listPublication;
 		case BANDA:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if (publicationBD.getFechaPublicacion().equals(fechaPublicacion) 
-						&& !Objects.isNull(publicationBD.getUserMusician())) {
+			for (Publication publicationBD : publicationRepository.findByFechaPublicacion(fechaPublicacion)) {
+				if (!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserBand().isEnabled()) {
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
 					publicationDTO.setMusicianDTO(userMusician);
@@ -227,7 +224,7 @@ public class PublicationService implements IPublicationService {
 		
 		case MUSICO:
 			for (Publication publicationBD : publicationRepository.findAll()) {
-				 if(!Objects.isNull(publicationBD.getUserBand())
+				 if((!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) 
 						 && publicationBD.getUserBand().getProvincia().equalsIgnoreCase(provincia)){
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
@@ -235,12 +232,10 @@ public class PublicationService implements IPublicationService {
 					listPublication.add(publicationDTO);				
 				}			
 			}
-			return listPublication;
-			
-			
+			return listPublication;		
 		case BANDA:
 			for (Publication publicationBD : publicationRepository.findAll()) {
-				if (!Objects.isNull(publicationBD.getUserMusician()) 
+				if ((!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled()) 
 						&& publicationBD.getUserMusician().getProvincia().equalsIgnoreCase(provincia)){
 					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
 					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
