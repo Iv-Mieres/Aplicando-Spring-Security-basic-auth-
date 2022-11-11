@@ -74,14 +74,14 @@ public class PublicationController {
 	// FILTROS DE ANUNCIOS
 
 	@PreAuthorize("hasRole('BANDA')")
-	@GetMapping("/musicos/ver_anuncios/por_genero_musical/{genero_musical}")
+	@GetMapping("/musicos/por_genero_musical/{genero_musical}")
 	public ResponseEntity<List<PublicationDTO>> getAllMGeneroMusical(HttpSession session, @PathVariable String genero_musical) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(publicationService.getFilterForGeneroMusical(session, genero_musical));
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
-	@GetMapping("/musicos/ver_anuncios/por_fecha_publicacion/{fecha_publicacion}")
+	@GetMapping("/musicos/por_fecha_publicacion/{fecha_publicacion}")
 	public ResponseEntity<List<PublicationDTO>> getAllMFecha(HttpSession session,
 			@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha_publicacion) {
 		return ResponseEntity.status(HttpStatus.OK)
@@ -89,14 +89,14 @@ public class PublicationController {
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
-	@GetMapping("/musicos/ver_anuncios/por_provincia/{provincia}")
+	@GetMapping("/musicos/por_provincia/{provincia}")
 	public ResponseEntity<List<PublicationDTO>> getAllMProvincia(HttpSession session, @PathVariable String provincia) throws Exception {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(publicationService.getFilterForProvincia(session, provincia));
 	}
 
 	@PreAuthorize("hasRole('BANDA')")
-	@GetMapping("/musicos/ver_anuncios/por_instrumento/{instrumento}")
+	@GetMapping("/musicos/por_instrumento/{instrumento}")
 	public ResponseEntity<List<PublicationDTO>> getAllMInstrumento(HttpSession session, @PathVariable String instrumento) {
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(publicationService.getFilterForInstrumento(session, instrumento));
