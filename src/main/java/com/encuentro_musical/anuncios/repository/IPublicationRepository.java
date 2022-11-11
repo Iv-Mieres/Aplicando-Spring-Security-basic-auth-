@@ -9,8 +9,7 @@ import com.encuentro_musical.anuncios.model.Publication;
 
 @Repository
 public interface IPublicationRepository extends JpaRepository<Publication, Long> {
-	
+	List<Publication> findByFechaPublicacion(LocalDate fechaPublicacion);
 	List<Publication> findByGeneroMusical(String generoMusical);
-	List<Publication> findByRemunerado(boolean remunerado);
-	List<Publication> findByFechaPublicacion(LocalDate fecha);
+	
 }

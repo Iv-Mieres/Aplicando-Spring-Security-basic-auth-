@@ -9,14 +9,10 @@ import javax.servlet.http.HttpSession;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.encuentro_musical.anuncios.dto.BandDTO;
 import com.encuentro_musical.anuncios.dto.MusicianDTO;
-import com.encuentro_musical.anuncios.dto.PaginadoDTO;
 import com.encuentro_musical.anuncios.dto.PublicationDTO;
 import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserBand;
@@ -63,46 +59,42 @@ public class PublicationService implements IPublicationService {
 
 	}
 
-	// MUESTRA LAS PUBLICACIONES PEGINADAS DE BANDAS O MUSICOS
+	// MUESTRA LAS PUBLICACIONES DE BANDAS O MUSICOS
 
 	@Override
-	public PaginadoDTO getAllBandOrMusicianPublications(HttpSession session, int pageNumber, int pageSize) {
-		UserModel userSession = (UserModel) session.getAttribute("usersession");
-
-		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-		Page<Publication> listPublicationsBD = publicationRepository.findAll(pageable);
-		var paginadoDTO = modelMapper.map(listPublicationsBD, PaginadoDTO.class);
-
+	public List<PublicationDTO> getAllBandOrMusicianPublications(HttpSession session) {
+		UserModel userSession = (UserModel) session.getAttribute("usersession");	
+		List<Publication> listPublicationsBD = publicationRepository.findAll();
+	
 		switch (userSession.getRole()) {
-		case MUSICO://Muestra las publicaciones de músicos si el role de userSession es MUSICO
+		
+		//Muestra las publicaciones de músicos si el role userSession es MUSICO
+		case MUSICO:
 			var listPublicationDTO = new ArrayList<PublicationDTO>();
-			paginadoDTO.setPublicationDTO(listPublicationDTO);
-
-			for (Publication publicationBD : listPublicationsBD) {
+			for (var publicationBD : listPublicationsBD) {
 				if ((!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled())
 						&& Objects.isNull(publicationBD.getUserMusician())) {
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					BandDTO bandDTO = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
+					var publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
+					var bandDTO = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
 					publicationDTO.setBandDTO(bandDTO);
 					listPublicationDTO.add(publicationDTO);
 				}
 			}
-			return paginadoDTO;
-
-		case BANDA://Muestra las publicaciones de bandas si el role de userSession es BANDA
+			return listPublicationDTO;
+			
+		//Muestra las publicaciones de bandas si el role userSession es BANDA
+		case BANDA:
 			var listPublicationMDTO = new ArrayList<PublicationDTO>();
-			paginadoDTO.setPublicationDTO(listPublicationMDTO);
-
-			for (Publication publicationBD : listPublicationsBD) {
+			for (var publicationBD : listPublicationsBD) {
 				if((!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled()) 
 					&& Objects.isNull(publicationBD.getUserBand())){
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					MusicianDTO musicianDTO = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
+					var publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
+					var musicianDTO = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
 					publicationDTO.setMusicianDTO(musicianDTO);
 					listPublicationMDTO.add(publicationDTO);
 				}
 			}
-			return paginadoDTO;
+			return listPublicationMDTO;
 		default:
 			return null;
 		}
@@ -118,22 +110,21 @@ public class PublicationService implements IPublicationService {
 		
 		switch (userSession.getRole()) {
 
-		case MUSICO://Elimina la publicación si el role de userSession es MUSICO y el email de la publicación
-					// de base de datos coincide con el email del userSession
+		case MUSICO:
 			if (Objects.isNull(publicationBD.getUserMusician()) || 
 					!publicationBD.getUserMusician().getEmail().equals(userSession.getEmail())) {
 				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido");
 			}
 			publicationRepository.delete(publicationBD);
 			break;
-		case BANDA://Misma función que el caso de MUSICO, pero para BANDA 
+		case BANDA: 
 			if (Objects.isNull(publicationBD.getUserBand()) ||
 					!publicationBD.getUserBand().getEmail().equals(userSession.getEmail())) {
 				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido");
 			}
 			publicationRepository.delete(publicationBD);
 			break;
-		case ADMIN://Si el role del userSession es ADMIN puede eliminar cualquier anuncio
+		case ADMIN:
 			publicationRepository.delete(publicationBD);
 		default:
 			throw new BadRequestException("Role no asignado");
@@ -144,134 +135,79 @@ public class PublicationService implements IPublicationService {
 	//============== FILTROS DE BUSQUEDA ==============
 	
 	// BUSCAR POR GENERO MUSICAL
-
+	
 	@Override
-	public List<PublicationDTO> getPublicationByGeneroMusical(HttpSession session, String generoMusical) {
-		UserModel userSession = (UserModel) session.getAttribute("usersession");
-		var listPublication = new ArrayList<PublicationDTO>();
+	public List<PublicationDTO> getFilterForGeneroMusical(HttpSession session, String generoMusical){
+		var publicationList = this.getAllBandOrMusicianPublications(session);	 
+		var addPublication = new ArrayList<PublicationDTO>();
 		
-		switch(userSession.getRole()) {
-		
-		case MUSICO:
-			for (Publication publicationBD : publicationRepository.findByGeneroMusical(generoMusical)) {
-				if (!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) {
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
-					publicationDTO.setBandDTO(userBand);
-					listPublication.add(publicationDTO);
-				}
-			}
-			return listPublication;
-		case BANDA:
-			for (Publication publicationBD : publicationRepository.findByGeneroMusical(generoMusical)) {
-				if (!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled() ) {
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
-					publicationDTO.setMusicianDTO(userMusician);
-					listPublication.add(publicationDTO);
-				}
-			}
-			return listPublication;	
-			default: 
-				return null;
-		}
-
-		
+		for (PublicationDTO publicationBD : publicationList) {
+			if(publicationBD.getGeneroMusical().equalsIgnoreCase(generoMusical)) {
+				addPublication.add(publicationBD);		
+			}			
+		}	
+		return addPublication;	
 	}
-
+	
 	// BUSCAR POR FECHA DE PUBLICACIÓN
 	
 	@Override
-	public List<PublicationDTO> getPublicationByFechaPublicacion(HttpSession session, LocalDate fechaPublicacion) {
-		UserModel userSession = (UserModel) session.getAttribute("usersession");
-		var listPublication = new ArrayList<PublicationDTO>();
-				
-		switch(userSession.getRole()) {
+	public List<PublicationDTO> getFilterForFechaPublicacion(HttpSession session, LocalDate fecha){
+		var publicationList = this.getAllBandOrMusicianPublications(session);	 
+		var addPublication = new ArrayList<PublicationDTO>();
 		
-		case MUSICO:
-			for (Publication publicationBD : publicationRepository.findByFechaPublicacion(fechaPublicacion)) {
-				if (!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) {
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
-					publicationDTO.setBandDTO(userBand);
-					listPublication.add(publicationDTO);
-				}
-			}
-			return listPublication;
-		case BANDA:
-			for (Publication publicationBD : publicationRepository.findByFechaPublicacion(fechaPublicacion)) {
-				if (!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserBand().isEnabled()) {
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
-					publicationDTO.setMusicianDTO(userMusician);
-					listPublication.add(publicationDTO);
-				}
-			}
-			return listPublication;	
-			default: 
-				return null;
-		}
+		for (PublicationDTO publicationBD : publicationList) {
+			if(publicationBD.getFechaPublicacion().equals(fecha)) {
+				addPublication.add(publicationBD);		
+			}			
+		}	
+		return addPublication;	
 	}
 
 	// BUSCAR POR PROVINCIA
 	
 	@Override
-	public List<PublicationDTO> getPublicationByProvincia(HttpSession session, String provincia) {
+	public List<PublicationDTO> getFilterForProvincia(HttpSession session, String provincia) throws Exception {
 		UserModel userSession = (UserModel) session.getAttribute("usersession");
-		var listPublication = new ArrayList<PublicationDTO>();
-	
+		var publicationList = this.getAllBandOrMusicianPublications(session);	
+		var addPublication = new ArrayList<PublicationDTO>();
+		
 		switch(userSession.getRole()) {
 		
 		case MUSICO:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				 if((!Objects.isNull(publicationBD.getUserBand()) && publicationBD.getUserBand().isEnabled()) 
-						 && publicationBD.getUserBand().getProvincia().equalsIgnoreCase(provincia)){
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					BandDTO userBand = modelMapper.map(publicationBD.getUserBand(), BandDTO.class);
-					publicationDTO.setBandDTO(userBand);
-					listPublication.add(publicationDTO);				
+			for (PublicationDTO publicationBD : publicationList) {
+				if(publicationBD.getBandDTO().getProvincia().equalsIgnoreCase(provincia)) {
+					addPublication.add(publicationBD);		
 				}			
 			}
-			return listPublication;		
+			break;
 		case BANDA:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if ((!Objects.isNull(publicationBD.getUserMusician()) && publicationBD.getUserMusician().isEnabled()) 
-						&& publicationBD.getUserMusician().getProvincia().equalsIgnoreCase(provincia)){
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
-					publicationDTO.setMusicianDTO(userMusician);
-					listPublication.add(publicationDTO);
-				}
+			for (PublicationDTO publicationBD : publicationList) {
+				if(publicationBD.getMusicianDTO().getProvincia().equalsIgnoreCase(provincia)) {
+					addPublication.add(publicationBD);		
+				}			
 			}
-			return listPublication;	
+			break;
 			default: 
-				return null;
+				throw new Exception("No tiene las credenciales para ver este recurso.");
 		}
+			
+ 		return addPublication;	
 	} 
 	
 	// BUSCAR POR INSTRUMENTO
 	
 	@Override
-	public List<PublicationDTO> getPublicationByInstrumento(HttpSession session, String instrumento) {
-		UserModel userSession = (UserModel) session.getAttribute("usersession");
-		var listMusicianPublication = new ArrayList<PublicationDTO>();
+	public List<PublicationDTO> getFilterForInstrumento(HttpSession session, String instrumento) {
+		var publicationList = this.getAllBandOrMusicianPublications(session);		
+		var addPublication = new ArrayList<PublicationDTO>();
 		
-		switch(userSession.getRole()) {
-			
-		case BANDA:
-			for (Publication publicationBD : publicationRepository.findAll()) {
-				if(!Objects.isNull(publicationBD.getUserMusician()) 
-						&& publicationBD.getUserMusician().getInstrumento().equalsIgnoreCase(instrumento)){
-					PublicationDTO publicationDTO = modelMapper.map(publicationBD, PublicationDTO.class);
-					MusicianDTO userMusician = modelMapper.map(publicationBD.getUserMusician(), MusicianDTO.class);
-					publicationDTO.setMusicianDTO(userMusician);
-					listMusicianPublication.add(publicationDTO);
-				}
-			}
-			return listMusicianPublication;	
-			default: 
-				return null;
-		}
+		for (PublicationDTO publicationBD : publicationList) {
+			if(publicationBD.getMusicianDTO().getInstrumento().equalsIgnoreCase(instrumento)) {
+				addPublication.add(publicationBD);		
+			}			
+		}		
+ 		return addPublication;	
 	}
 
 }
