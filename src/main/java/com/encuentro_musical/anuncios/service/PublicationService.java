@@ -99,6 +99,39 @@ public class PublicationService implements IPublicationService {
 			return null;
 		}
 	}
+	
+	// EDITAR ANUNCIO COMO USUARIO BANDA O MUSICO
+	
+	@Override
+	public void updatePubication(HttpSession session, Long idPublication, Publication publication) throws BadRequestException{
+		UserModel userSession = (UserModel) session.getAttribute("usersession");
+		var publicationBD = publicationRepository.findById(idPublication).orElseThrow();
+		
+		switch(userSession.getRole()) {
+		case MUSICO:
+			UserMusician musicianSession = (UserMusician) session.getAttribute("usersession");
+			if(!publicationBD.getUserMusician().getEmail().equals(userSession.getEmail())) {
+				throw new BadRequestException("El id " + idPublication + " ingresado es incorecto. Ingrese un id válido!");
+			}
+			publicationBD = publication;
+			publicationBD.setIdAnuncio(idPublication);
+			publicationBD.setUserMusician(musicianSession);
+			break;
+		case BANDA:
+			UserBand bandSession = (UserBand) session.getAttribute("usersession");
+			if(!publicationBD.getUserBand().getEmail().equals(userSession.getEmail())) {
+				throw new BadRequestException("El id " + idPublication + " ingresado es incorecto. Ingrese un id válido!");
+			}
+			publicationBD = publication;
+			publicationBD.setIdAnuncio(idPublication);
+			publicationBD.setUserBand(bandSession);
+			break;
+			default: 
+				throw new BadRequestException("No tiene los permisos necesarios para utilizar este recurso!");
+		}
+		publicationRepository.save(publicationBD);
+	}
+	
 
 	// ELIMINAR ANUNCIO COMO USUARIO MUSICO, BANDA O ADMIN
 
@@ -127,7 +160,7 @@ public class PublicationService implements IPublicationService {
 		case ADMIN:
 			publicationRepository.delete(publicationBD);
 		default:
-			throw new BadRequestException("Role no asignado");
+			throw new BadRequestException("No tiene los permisos necesarios para utilizar este recurso!");
 		}
 
 	}

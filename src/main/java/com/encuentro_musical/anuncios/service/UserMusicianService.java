@@ -17,6 +17,7 @@ import com.encuentro_musical.anuncios.enums.Role;
 import com.encuentro_musical.anuncios.model.Publication;
 import com.encuentro_musical.anuncios.model.UserMusician;
 import com.encuentro_musical.anuncios.model.exceptions.BadRequestException;
+import com.encuentro_musical.anuncios.repository.IPublicationRepository;
 import com.encuentro_musical.anuncios.repository.IUserBandRepository;
 import com.encuentro_musical.anuncios.repository.IUserMusicianRepository;
 
@@ -25,6 +26,9 @@ public class UserMusicianService implements IUserMusicianService {
 
 	@Autowired
 	private IUserMusicianRepository userMusicianRepository;
+	
+	@Autowired
+	private IPublicationRepository publicationRepository;
 	
 	@Autowired
 	private IUserBandRepository userBandRepository;
@@ -65,7 +69,7 @@ public class UserMusicianService implements IUserMusicianService {
 		return userMusicianRepository.save(musicianUserSet);
 	}
 
-	// ====== MOSTRAR PERFIL(DATOS) DEL USUARIO MÚSICO LOGUEADO ========= CHECK OK
+	// ====== MOSTRAR PERFIL DEL USUARIO MÚSICO LOGUEADO ========= CHECK OK
 
 	@Override
 	public MyMusicianProfileDTO myMusicianProfile(HttpSession session) {
@@ -75,7 +79,7 @@ public class UserMusicianService implements IUserMusicianService {
 		var musicianProfileDTO = modelMapper.map(userMusicianBD, MyMusicianProfileDTO.class);
 		var addListMusicianPublication = new ArrayList<PublicationDTO>();
 			
-		for (Publication musicianPublication : userMusicianBD.getListPublicationsMusician()) {
+		for (var musicianPublication : userMusicianBD.getListPublicationsMusician()) {
 			if (Objects.isNull(musicianPublication)) {
 				Hibernate.initialize(userMusicianBD.getListPublicationsMusician());
 			}else { 
@@ -121,46 +125,18 @@ public class UserMusicianService implements IUserMusicianService {
 		userMusicianRepository.save(userMusicianBD);
 	}
 
-	// ====== EDITAR ANUNCIO DE MÚSICO ========= CHECK OK
-
-	@Override
-	public void updateMusicianPublication(HttpSession session, Long idMuicianPublication,
-		Publication musicianPublication) throws BadRequestException {
-		/*
-		var musicianSession = (UserMusician) session.getAttribute("usersession");
-		var musicianPublicationBD = musicianPublicationRepository.findById(idMuicianPublication)
-				.orElseThrow(() -> new BadRequestException("Id incorrecto. Ingrese un id válido"));
-		
-		if(!musicianPublicationBD.getUserMusician().getIdMusician().equals(musicianSession.getIdMusician())) {
-			throw new BadRequestException("Id incorrecto. Ingrese un id válido");
-		}
-		if(!musicianPublication.getFechaPublicacion().equals(LocalDate.now())) {
-			throw new BadRequestException("La fecha ingresada debe ser igual a la fecha de hoy: " + LocalDate.now());
-		}	
-		musicianPublicationBD = musicianPublication;
-		musicianPublicationBD.setUserMusician(musicianSession);
-		musicianPublicationBD.setIdMusicianPublication(idMuicianPublication);		
-		
-		musicianPublicationRepository.save(musicianPublicationBD);
-		*/
-	}
-
 	// ====== ELIMINADO LÓGICO DE UN MÚSICO =========
 
 	@Override
 	public void deleteMusician(HttpSession session) {
-		/*
 		var musicianSession = (UserMusician) session.getAttribute("usersession");
 		var musicianBD = userMusicianRepository.findById(musicianSession.getIdMusician()).orElse(null);
 
 		musicianBD.setEliminado("TRUE");
 		userMusicianRepository.save(musicianBD);
 		
-		for (MusicianPublication musicianPublication : musicianBD.getListPublicationsMusician()) {
-			musicianPublicationRepository.delete(musicianPublication);
+		for (Publication musicianPublication : musicianBD.getListPublicationsMusician()) {
+			publicationRepository.delete(musicianPublication);
 		}
 	}
-*/
-	}
-
 }

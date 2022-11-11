@@ -23,7 +23,7 @@ import com.encuentro_musical.anuncios.service.IUserBandService;
 
 @RestController
 @RequestMapping(path = "bandas")
-public class BandProfileController {
+public class BandController {
 
 	@Autowired
 	private IPublicationService publicationService;

@@ -27,6 +27,8 @@ public interface IPublicationService {
 	
 	public List<PublicationDTO> getFilterForInstrumento(HttpSession session, String instrumento);
 
+	void updatePubication(HttpSession session, Long idPublication, Publication publication) throws BadRequestException;
+
 
 
 }

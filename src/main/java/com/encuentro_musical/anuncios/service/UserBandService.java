@@ -80,7 +80,7 @@ public class UserBandService implements IUserBandService {
 		var bandProfileDTO = modelMapper.map(userBandBD, MyBandProfileDTO.class);
 		var addListBandPublication = new ArrayList<PublicationDTO>();
 
-		for (Publication bandPublication : userBandBD.getListPublicationsBand()) {
+		for (var bandPublication : userBandBD.getListPublicationsBand()) {
 			if (Objects.isNull(bandPublication)) {
 				Hibernate.initialize(userBandBD.getListPublicationsBand());
 			} else {
@@ -97,7 +97,7 @@ public class UserBandService implements IUserBandService {
 	@Override
 	public void updateBand(HttpSession session, UserBand userBand) throws BadRequestException {
 		var bandSession = (UserBand) session.getAttribute("usersession");
-		UserBand userBandBD = userBandRepository.findById(bandSession.getIdBand()).orElse(null);
+		var userBandBD = userBandRepository.findById(bandSession.getIdBand()).orElse(null);
 		var bandPublications = bandSession.getListPublicationsBand();
 
 		if (userBandRepository.existsByUserName(userBand.getUserName())
@@ -133,10 +133,10 @@ public class UserBandService implements IUserBandService {
 			throws BadRequestException {
 
 		var bandSession = (UserBand) session.getAttribute("usersession");
-		var publicationBD = publicationRepository.findById(idBandPublication)
-				.orElseThrow(() -> new BadRequestException("El id " + idBandPublication + " no es correcto. Ingrese un id válido")) ;
+		var publicationBD = publicationRepository.findById(idBandPublication).orElseThrow(
+				() -> new BadRequestException("El id " + idBandPublication + " no es correcto. Ingrese un id válido"));
 
-		if (Objects.isNull(publicationBD.getUserBand()) 
+		if (Objects.isNull(publicationBD.getUserBand())
 				|| !publicationBD.getUserBand().getIdBand().equals(bandSession.getIdBand())) {
 			throw new BadRequestException("El id " + idBandPublication + " no es correcto. Ingrese un id válido");
 		}
@@ -161,7 +161,7 @@ public class UserBandService implements IUserBandService {
 		userBandRepository.save(bandBD);
 
 		// elimina todas las publicaciones del usuario banda eliminado
-		for (Publication bandPublication : bandBD.getListPublicationsBand()) {
+		for (var bandPublication : bandBD.getListPublicationsBand()) {
 			publicationRepository.delete(bandPublication);
 		}
 	}

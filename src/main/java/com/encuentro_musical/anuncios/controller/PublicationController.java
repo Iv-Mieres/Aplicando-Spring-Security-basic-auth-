@@ -30,7 +30,7 @@ public class PublicationController {
 	// ===================
 
 	// VER TODOS LOS ANUNCIOS DE BANDAS
-	@PreAuthorize("hasAnyRole('MUSICO', 'BANDA')")
+	@PreAuthorize("hasRole('MUSICO')")
 	@GetMapping("/bandas")
 	public ResponseEntity<List<PublicationDTO>> getAllBandPublications(HttpSession session) throws BadRequestException{
 		return ResponseEntity.status(HttpStatus.OK).body(publicationService.getAllBandOrMusicianPublications(session));

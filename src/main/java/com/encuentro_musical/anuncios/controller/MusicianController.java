@@ -23,7 +23,7 @@ import com.encuentro_musical.anuncios.service.IUserMusicianService;
 
 @RestController
 @RequestMapping(path = "musicos")
-public class MusicianProfileController {
+public class MusicianController {
 
 	@Autowired
 	private IUserMusicianService userMusicianService;
@@ -77,7 +77,7 @@ public class MusicianProfileController {
 	@PostMapping("/mi_perfil/editar_anuncio/{idMusicianPublication}")
 	public ResponseEntity<String> editPublication(HttpSession session, @PathVariable Long idMusicianPublication,
 			@RequestBody @Valid Publication musicianPublication) throws BadRequestException {
-		userMusicianService.updateMusicianPublication(session, idMusicianPublication, musicianPublication);
+		publicationService.updatePubication(session, idMusicianPublication, musicianPublication);
 		return ResponseEntity.status(HttpStatus.OK).body("El anuncio se actualizó correctamente!");
 	}
 
