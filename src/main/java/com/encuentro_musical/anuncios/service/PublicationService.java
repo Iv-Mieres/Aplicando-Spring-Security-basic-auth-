@@ -105,12 +105,14 @@ public class PublicationService implements IPublicationService {
 	@Override
 	public void updatePubication(HttpSession session, Long idPublication, Publication publication) throws BadRequestException{
 		UserModel userSession = (UserModel) session.getAttribute("usersession");
-		var publicationBD = publicationRepository.findById(idPublication).orElseThrow();
+		var publicationBD = publicationRepository.findById(idPublication)
+				.orElseThrow(() -> new BadRequestException("El id " + idPublication + " ingresado es incorecto. Ingrese un id válido!"));
 		
 		switch(userSession.getRole()) {
 		case MUSICO:
 			UserMusician musicianSession = (UserMusician) session.getAttribute("usersession");
-			if(!publicationBD.getUserMusician().getEmail().equals(userSession.getEmail())) {
+			if(Objects.isNull(publicationBD.getUserMusician()) 
+					||  !publicationBD.getUserMusician().getEmail().equals(userSession.getEmail())) {
 				throw new BadRequestException("El id " + idPublication + " ingresado es incorecto. Ingrese un id válido!");
 			}
 			publicationBD = publication;
@@ -119,7 +121,8 @@ public class PublicationService implements IPublicationService {
 			break;
 		case BANDA:
 			UserBand bandSession = (UserBand) session.getAttribute("usersession");
-			if(!publicationBD.getUserBand().getEmail().equals(userSession.getEmail())) {
+			if( Objects.isNull(publicationBD.getUserBand())
+					|| !publicationBD.getUserBand().getEmail().equals(userSession.getEmail())) {
 				throw new BadRequestException("El id " + idPublication + " ingresado es incorecto. Ingrese un id válido!");
 			}
 			publicationBD = publication;
@@ -146,14 +149,16 @@ public class PublicationService implements IPublicationService {
 		case MUSICO:
 			if (Objects.isNull(publicationBD.getUserMusician()) || 
 					!publicationBD.getUserMusician().getEmail().equals(userSession.getEmail())) {
-				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido");
+				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido"
+						+ " o vuelva a loguearse si ha editado sus datos de perfil! ");
 			}
 			publicationRepository.delete(publicationBD);
 			break;
 		case BANDA: 
 			if (Objects.isNull(publicationBD.getUserBand()) ||
 					!publicationBD.getUserBand().getEmail().equals(userSession.getEmail())) {
-				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido");
+				throw new BadRequestException("El id " + idPublication + " no es correcto. Ingrese un id válido"
+						+ " o vuelva a loguearse si ha editado sus datos de perfil! ");
 			}
 			publicationRepository.delete(publicationBD);
 			break;

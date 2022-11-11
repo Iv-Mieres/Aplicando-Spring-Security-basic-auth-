@@ -66,7 +66,7 @@ public class PublicationController {
 	// VER TODOS LOS ANUNCIOS DE MÚSICOS
 
 	@PreAuthorize("hasRole('BANDA')")
-	@GetMapping("/musicos/ver_anuncios")
+	@GetMapping("/musicos")
 	public ResponseEntity<List<PublicationDTO>> getMusicianPublication(HttpSession session) throws BadRequestException {
 		return ResponseEntity.status(HttpStatus.OK).body(publicationService.getAllBandOrMusicianPublications(session));
 	}
