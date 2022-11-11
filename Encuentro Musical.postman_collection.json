@@ -1,0 +1,588 @@
+{
+	"info": {
+		"_postman_id": "a8b0b321-a6d9-4300-9290-9f178e95c8b1",
+		"name": "Encuentro Musical",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Alta de Usuarios",
+			"item": [
+				{
+					"name": "Crear Usuario Banda",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"userName\" : \"Banda de Prueba\",\r\n\"password\" : \"prueba\",\r\n\"repeatPassword\" : \"prueba\",\r\n\"nombreBanda\" : \"Prueba\",\r\n\"linkRedSocial\" : \"prueba.com/banda\",\r\n\"email\" : \"prueba@gmail.com\",\r\n\"repeatEmail\" : \"prueba@gmail.com\", \r\n\"provincia\" : \"Buenos Aires\",\r\n\"localidad\" : \"Prueba\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/bandas/crear_usuario",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"crear_usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Usuario Musico",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"userName\" : \"Usuario Musico\",\r\n\"password\" : \"prueba\",\r\n\"repeatPassword\" : \"prueba\",\r\n\"email\" : \"prueba2@gmail.com\",\r\n\"repeatEmail\" : \"prueba2@gmail.com\",\r\n\"provincia\" : \"Santa Fe\",\r\n\"localidad\" : \"Rosario\",\r\n\"nombre\" : \"Prueba\",\r\n\"apellido\" : \"Probando\",\r\n\"instrumento\" : \"Guitarra\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/musicos/crear_usuario",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"crear_usuario"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "LOGIN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"username\" : \"Banda de Prueba\",\r\n\"password\" : \"prueba\"\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/usuarios/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"usuarios",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Banda",
+			"item": [
+				{
+					"name": "Anuncios de Músicos Filtrados",
+					"item": [
+						{
+							"name": "Por genero músical",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/musicos/por_genero_musical/trap",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"musicos",
+										"por_genero_musical",
+										"trap"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Por Fecha de Publicación",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/musicos/por_fecha_publicacion/2022-11-06",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"musicos",
+										"por_fecha_publicacion",
+										"2022-11-06"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Por Provincia",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/musicos/por_provincia/misiones",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"musicos",
+										"por_provincia",
+										"misiones"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Por Instrumento",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/musicos/por_instrumento/Guitarra",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"musicos",
+										"por_instrumento",
+										"Guitarra"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Ver Anuncios de Músicos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/anuncios/musicos",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"anuncios",
+								"musicos"
+							],
+							"query": [
+								{
+									"key": "pageNumber",
+									"value": "0",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Mi Perfil",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/bandas/mi_perfil",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"mi_perfil"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Anuncios como Banda",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"titulo\" : \"titulo de prueba\",\r\n\"fechaPublicacion\" : \"2022-11-11\",\r\n\"generoMusical\" : \"Trap\",\r\n\"remunerado\" : \"false\",\r\n\"descripcion\" : \"Creando anuncio de prueba\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/bandas/crear_anuncio",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"crear_anuncio"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar mi Anuncio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"titulo\" : \"Editando Anuncio\",\r\n\"fechaPublicacion\" : \"2022-11-11\",\r\n\"linkRedSocial\" : \"linkdeprueba/prueba.com\",\r\n\"generoMusical\" : \"Trap\",\r\n\"remunerado\" : \"true\",\r\n\"descripcion\" : \"Probando la edicion de un anuncio\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/bandas/mi_perfil/editar_anuncio/20",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"mi_perfil",
+								"editar_anuncio",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar Usuario Banda",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"userName\" : \"Editado\",\r\n\"password\" : \"editado\",\r\n\"repeatPassword\" : \"editado\",\r\n\"email\" : \"editado@gmail.com\",\r\n\"repeatEmail\" : \"editado@gmail.com\",\r\n\"provincia\" : \"Buenos Aires\",\r\n\"localidad\" : \"Alt. Brown\",\r\n\"nombreBanda\" : \"Editado\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/bandas/mi_perfil/editar",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"mi_perfil",
+								"editar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar mi Perfil de Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/bandas/mi_perfil/eliminar",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"mi_perfil",
+								"eliminar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar mi Anuncio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/bandas/mi_perfil/eliminar_anuncio/20",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"bandas",
+								"mi_perfil",
+								"eliminar_anuncio",
+								"20"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Músico",
+			"item": [
+				{
+					"name": "Anuncios Filtrados de Bandas",
+					"item": [
+						{
+							"name": "Por genero músical",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/bandas/por_genero_musical/metal",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"bandas",
+										"por_genero_musical",
+										"metal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Por Fecha de Publicación",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/bandas/por_fecha_publicacion/2022-11-06",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"bandas",
+										"por_fecha_publicacion",
+										"2022-11-06"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Por Provincia",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/anuncios/bandas/por_provincia/buenos aires",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"anuncios",
+										"bandas",
+										"por_provincia",
+										"buenos aires"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Ver Anuncios de Bandas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/anuncios/bandas",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"anuncios",
+								"bandas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ver Mi Perfil",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/musicos/mi_perfil",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"mi_perfil"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Anuncios como Músico",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"titulo\" : \"Prueba 1\",\r\n\"fechaPublicacion\" : \"2022-11-11\",\r\n\"generoMusical\" : \"editado\",\r\n\"remunerado\" : \"false\",\r\n\"descripcion\" : \"Creando anuncio de prueba \"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/musicos/crear_anuncio",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"crear_anuncio"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar mi Anuncio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"titulo\" : \"Prueba de editado\",\r\n\"fechaPublicacion\" : \"2022-11-11\",\r\n\"generoMusical\" : \"Prueba\",\r\n\"remunerado\" : \"true\",\r\n\"descripcion\" : \"probando la edicion de un anuncio\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/musicos/mi_perfil/editar_anuncio/21",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"mi_perfil",
+								"editar_anuncio",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Editar mi Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"userName\" : \"Editar 2\",\r\n\"password\" : \"editando\",\r\n\"repeatPassword\" : \"editando\",\r\n\"email\" : \"editado2@gmail.com\",\r\n\"repeatEmail\" : \"editado2@gmail.com\",\r\n\"provincia\" : \"Buenos Aires\",\r\n\"localidad\" : \"Alt. Brown\",\r\n\"nombre\" : \"Ivan\",\r\n\"apellido\" : \"Mieres\",\r\n\"instrumento\" : \"Guitarra\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/musicos/mi_perfil/editar",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"mi_perfil",
+								"editar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/musicos/mi_perfil/eliminar",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"musicos",
+								"mi_perfil",
+								"eliminar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
