@@ -44,7 +44,7 @@ public class BandController {
 
 	// CREAR ANUNCIO
 
-	@PreAuthorize("hasAnyRole('BANDA', 'MUSICO')")
+	@PreAuthorize("hasRole('BANDA')")
 	@PostMapping("/crear_anuncio")
 	public ResponseEntity<String> saveBandPublication(HttpSession session,  @RequestBody @Valid Publication bandPublication) throws BadRequestException {
 		publicationService.savePublication(session, bandPublication);
